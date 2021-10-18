@@ -2,56 +2,10 @@
 #include <string.h>
 #include <stdlib.h>
 #include <time.h>
+#include "personlist.h"
 
-#define NAME_LEN 31
 
-struct person_node {
-    char first[NAME_LEN+1];
-    char last[NAME_LEN+1];
-    unsigned char age; // no man in recorded history has lived >255 years yet
-    
-    struct person_node *next;
-};
-
-struct person_node * insert_front(struct person_node * head, char *first, char *last, unsigned char age) {
-    struct person_node *result = malloc(sizeof(struct person_node));
-    
-    strncpy(result->first, first, NAME_LEN);
-    result->first[NAME_LEN] = 0;
-    
-    strncpy(result->last, last, NAME_LEN);
-    result->last[NAME_LEN] = 0;
-    
-    result->age = age;
-    result->next = head;
-    
-    return result;
-}
-
-void print_person(struct person_node *p) {
-    printf("%s %s\n  Age: %hhu\n", p->first, p->last, p->age);
-}
-
-void print_list(struct person_node *head) {
-    printf("== Person List ==\n");
-    while (head) {
-        print_person(head);
-        head = head->next;
-    }
-    printf("=================\n\n");
-}
-
-struct person_node * free_list(struct person_node * head) {
-    while (head) {
-        struct person_node *next = head->next;
-        // ^ must keep ptr to next before freeing
-        free(head);
-        head = next;
-    }
-    return head;
-}
-
-// for fun:
+// for fun (not in "personlist" because it's not specific to nodes):
 void makeRandomName(char *dest, int max) {
     const static char *vowels = "aeiou";
     int len = 1;
@@ -84,16 +38,26 @@ int main() {
     
     struct person_node *head = 0;
     print_list(head);
+    printf("## POPULATING LIST");
     head = insert_front(head, "Yusuf", "Elsharawy", 17);
     print_list(head);
     head = insert_front(head, "JonAlf", "Dyrland-Weaver", 30 + rand() % 30);
-    { // test for keeping string even after original is removed from stack
-        char first[NAME_LEN+1], last[NAME_LEN+1];
-        makeRandomName(first, NAME_LEN);
-        makeRandomName(last, NAME_LEN);
-        head = insert_front(head, first, last, 10 + rand() % 90);
-    }
+    
+    char rand_first[NAME_LEN+1], rand_last[NAME_LEN+1];
+    makeRandomName(rand_first, NAME_LEN);
+    makeRandomName(rand_last, NAME_LEN);
+    head = insert_front(head, rand_first, rand_last, 10 + rand() % 90);
+    
     print_list(head);
+    printf("## REMOVING 1 AT A TIME, IN RANDOM ORDER\n");
+    while (head) {
+        struct person_node *toremove = random_node(head);
+        printf("# REMOVING: %s\n", toremove->first);
+        head = remove_node(head, toremove->first);
+        printf("# REMANING:\n");
+        print_list(head);
+    }
+    printf("## FREEING REMAINING (which should be none)\n");
     head = free_list(head);
     print_list(head);
 }
