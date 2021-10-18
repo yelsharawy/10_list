@@ -13,7 +13,7 @@ struct person_node {
     struct person_node *next;
 };
 
-struct person_node * new_person(char *first, char *last, unsigned char age) {
+struct person_node * insert_front(struct person_node * head, char *first, char *last, unsigned char age) {
     struct person_node *result = malloc(sizeof(struct person_node));
     
     strncpy(result->first, first, NAME_LEN);
@@ -23,19 +23,13 @@ struct person_node * new_person(char *first, char *last, unsigned char age) {
     result->last[NAME_LEN] = 0;
     
     result->age = age;
-    result->next = 0;
+    result->next = head;
     
     return result;
 }
 
 void print_person(struct person_node *p) {
     printf("%s %s\n  Age: %hhu\n", p->first, p->last, p->age);
-}
-
-struct person_node * insert_front(struct person_node *head, char *first, char *last, unsigned char age) {
-    struct person_node *result = new_person(first, last, age);
-    result->next = head;
-    return result;
 }
 
 void print_list(struct person_node *head) {
